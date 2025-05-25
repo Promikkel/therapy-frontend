@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const participantLists = document.querySelectorAll('.participants-list');
 
     // API endpoint
-    const API_URL = 'https://your-backend-service.onrender.com';
+    const API_URL = 'https://therapy-backend.onrender.com';
 
     // Wisselen tussen dagen
     dayButtons.forEach(button => {
