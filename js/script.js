@@ -29,64 +29,56 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // Event delegation op container die altijd bestaat
-const container = document.querySelector(".container");
-
-container.addEventListener("click", async (event) => {
-  const target = event.target;
-
-  // Like button klik
-  if (target.closest(".like-button")) {
-    const button = target.closest(".like-button");
-    const activityId = button.dataset.activity;
-
-    try {
-      const res = await fetch(`${API_URL}/like/${activityId}`, { method: "POST" });
-      if (!res.ok) throw new Error("Like kon niet verwerkt worden");
-      const likeCountSpan = button.querySelector(".like-count");
-      let count = parseInt(likeCountSpan.textContent) || 0;
-      likeCountSpan.textContent = count + 1;
-      updateTopActivities();
-    } catch (error) {
-      alert("Fout bij liken: " + error.message);
-    }
-    return;
-  }
-
-  // Join button klik
-  if (target.closest(".join-button")) {
-    const button = target.closest(".join-button");
-    const nameInput = button.previousElementSibling;
-    const activityId = nameInput.dataset.activity;
-    const name = nameInput.value.trim();
-
-    if (!name) {
-      alert("Vul je naam in.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_URL}/join/${activityId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Server kon naam niet opslaan.");
+  // Likes click handler
+  document.querySelectorAll(".like-button").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const activityId = button.dataset.activity;
+      try {
+        const res = await fetch(`${API_URL}/like/${activityId}`, { method: "POST" });
+        if (!res.ok) throw new Error("Like kon niet verwerkt worden");
+        // Update UI likes
+        const likeCountSpan = button.querySelector(".like-count");
+        let count = parseInt(likeCountSpan.textContent) || 0;
+        likeCountSpan.textContent = count + 1;
+        updateTopActivities();
+      } catch (error) {
+        alert("Fout bij liken: " + error.message);
       }
+    });
+  });
 
-      nameInput.value = "";
-      alert("Je bent toegevoegd!");
-      await updateParticipants(activityId);
-    } catch (error) {
-      alert("Fout bij toevoegen deelnemer: " + error.message);
-      console.error("Fout in join-button handler:", error);
-    }
-    return;
-  }
-});
+  // Join button handler
+  document.querySelectorAll(".join-button").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const nameInput = button.previousElementSibling;
+      const activityId = nameInput.dataset.activity;
+      const name = nameInput.value.trim();
 
+      if (!name) {
+        alert("Vul je naam in.");
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_URL}/join/${activityId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Server kon naam niet opslaan.");
+        }
+        
+        nameInput.value = "";
+        alert("Je bent toegevoegd!");
+        await updateParticipants(activityId);
+      } catch (error) {
+        alert("Fout bij toevoegen deelnemer: " + error.message);
+        console.error("Fout in join-button handler:", error);
+      }
+    });
+  });
   
   // Top 5 updaten
   async function updateTopActivities() {
