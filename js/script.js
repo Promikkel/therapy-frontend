@@ -1,22 +1,42 @@
 document.addEventListener("DOMContentLoaded", function() {
   const API_URL = 'https://therapy-backend-l5u7.onrender.com';
 
-  // Functie om deelnemerslijst bij te werken voor 1 activiteit
+ // Functie om deelnemerslijst bij te werken voor 1 activiteit
   async function updateParticipants(activityId) {
     try {
+      // DEBUG: Controleer welke activiteit we opvragen
+      console.log(`Bezig met ophalen van deelnemers voor: ${activityId}`);
+
       const response = await fetch(`${API_URL}/participants/${activityId}`);
-      if (!response.ok) throw new Error("Kon deelnemers niet ophalen");
+      if (!response.ok) {
+        throw new Error(`Serverfout (status: ${response.status})`);
+      }
+
       const participants = await response.json();
+
+      // DEBUG: Controleer wat de server precies terugstuurt
+      console.log(`Deelnemers ontvangen voor ${activityId}:`, participants);
+
       const container = document.querySelector(`.participants-list[data-activity="${activityId}"]`);
-      if (!container) return;
+      if (!container) {
+        console.error(`Kon de container .participants-list niet vinden voor ${activityId}`);
+        return;
+      }
+
+      // Maak de lijst ALTIJD eerst leeg
       container.innerHTML = "";
-      participants.forEach(p => {
-        const div = document.createElement("div");
-        div.textContent = p.name;
-        container.appendChild(div);
-      });
+
+      // Vul de lijst met de ontvangen data
+      if (Array.isArray(participants) && participants.length > 0) {
+        participants.forEach(p => {
+          const div = document.createElement("div");
+          // De server moet een object sturen met een 'name' property, bv: { name: 'Jan' }
+          div.textContent = p.name;
+          container.appendChild(div);
+        });
+      }
     } catch (error) {
-      console.error("Fout bij laden deelnemers:", error);
+      console.error(`Fout bij laden van deelnemers voor ${activityId}:`, error);
     }
   }
 
@@ -49,24 +69,9 @@ document.addEventListener("DOMContentLoaded", function() {
         alert("Vul je naam in.");
         return;
       }
-
-      // VIND DE JUISTE LIJST OP DE PAGINA
-      const container = document.querySelector(`.participants-list[data-activity="${activityId}"]`);
-
-      // MAAK ALVAST HET NIEUWE NAAM-ELEMENT AAN
-      const participantDiv = document.createElement("div");
-      participantDiv.textContent = name;
       
-      // VOEG DE NAAM DIRECT ZICHTBAAR TOE AAN DE LIJST
-      if (container) {
-        container.appendChild(participantDiv);
-      }
-      
-      // Maak het inputveld leeg
-      nameInput.value = "";
-
       try {
-        // Stuur de data nog steeds naar de server op de achtergrond
+        // Stuur de nieuwe deelnemer naar de server
         const res = await fetch(`${API_URL}/join/${activityId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -74,39 +79,25 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         if (!res.ok) {
-           // Als de server een fout geeft, halen we de naam die we net toevoegden weer weg.
-           console.error("Server kon de naam niet opslaan.");
-           if (container) {
-             container.removeChild(participantDiv); // Haal de naam weer weg bij een fout
-           }
-           throw new Error("Kon deelnemer niet aan server toevoegen");
+           throw new Error("Server kon de naam niet opslaan.");
         }
         
-        // De naam is nu ook op de server opgeslagen.
-        // We hoeven de lijst niet per se opnieuw op te halen, want we hebben de naam al toegevoegd.
-        // await updateParticipants(activityId); // Deze regel kan eventueel uit.
+        // Maak inputveld leeg en geef een seintje
+        nameInput.value = "";
+        alert("Je bent toegevoegd!");
+
+        // Roep de verbeterde updateParticipants aan.
+        // Deze haalt de HELE lijst (inclusief jouw nieuwe naam) opnieuw op 
+        // van de server en toont deze correct.
+        await updateParticipants(activityId);
 
       } catch (error) {
-        alert("Fout bij synchroniseren met server: " + error.message);
+        alert("Fout bij toevoegen deelnemer: " + error.message);
+        console.error("Fout in join-button handler:", error);
       }
     });
   });
-
-  // Dag schakelen
-  document.querySelectorAll(".day-button").forEach(button => {
-    button.addEventListener("click", () => {
-      const selectedDay = button.dataset.day;
-      // Buttons actief zetten
-      document.querySelectorAll(".day-button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.day === selectedDay);
-      });
-      // Secties tonen/verbergen
-      document.querySelectorAll(".day-section").forEach(section => {
-        section.classList.toggle("active", section.id === selectedDay);
-      });
-    });
-  });
-
+  
   // Top 5 updaten
   async function updateTopActivities() {
     try {
