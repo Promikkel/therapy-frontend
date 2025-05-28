@@ -1,42 +1,31 @@
 document.addEventListener("DOMContentLoaded", function() {
   const API_URL = 'https://therapy-backend-l5u7.onrender.com';
 
- // Functie om deelnemerslijst bij te werken voor 1 activiteit
+  // Functie om deelnemerslijst bij te werken voor 1 activiteit
   async function updateParticipants(activityId) {
     try {
-      // DEBUG: Controleer welke activiteit we opvragen
-      console.log(`Bezig met ophalen van deelnemers voor: ${activityId}`);
-
+      console.log(`Ophalen deelnemers voor: ${activityId}`);
       const response = await fetch(`${API_URL}/participants/${activityId}`);
-      if (!response.ok) {
-        throw new Error(`Serverfout (status: ${response.status})`);
-      }
-
+      if (!response.ok) throw new Error(`Serverfout (status: ${response.status})`);
       const participants = await response.json();
-
-      // DEBUG: Controleer wat de server precies terugstuurt
-      console.log(`Deelnemers ontvangen voor ${activityId}:`, participants);
+      console.log(`Deelnemers voor ${activityId}:`, participants);
 
       const container = document.querySelector(`.participants-list[data-activity="${activityId}"]`);
       if (!container) {
-        console.error(`Kon de container .participants-list niet vinden voor ${activityId}`);
+        console.error(`Geen container gevonden voor deelnemers van ${activityId}`);
         return;
       }
 
-      // Maak de lijst ALTIJD eerst leeg
       container.innerHTML = "";
-
-      // Vul de lijst met de ontvangen data
       if (Array.isArray(participants) && participants.length > 0) {
         participants.forEach(p => {
           const div = document.createElement("div");
-          // De server moet een object sturen met een 'name' property, bv: { name: 'Jan' }
           div.textContent = p.name;
           container.appendChild(div);
         });
       }
     } catch (error) {
-      console.error(`Fout bij laden van deelnemers voor ${activityId}:`, error);
+      console.error(`Fout bij laden deelnemers voor ${activityId}:`, error);
     }
   }
 
@@ -46,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const activityId = button.dataset.activity;
       try {
         const res = await fetch(`${API_URL}/like/${activityId}`, { method: "POST" });
-        if (!res.ok) throw new Error("Like kon niet worden verwerkt");
+        if (!res.ok) throw new Error("Like kon niet verwerkt worden");
         // Update UI likes
         const likeCountSpan = button.querySelector(".like-count");
         let count = parseInt(likeCountSpan.textContent) || 0;
@@ -58,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-// Join button handler
+  // Join button handler
   document.querySelectorAll(".join-button").forEach((button) => {
     button.addEventListener("click", async () => {
       const nameInput = button.previousElementSibling;
@@ -71,7 +60,6 @@ document.addEventListener("DOMContentLoaded", function() {
       }
       
       try {
-        // Stuur de nieuwe deelnemer naar de server
         const res = await fetch(`${API_URL}/join/${activityId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -79,18 +67,12 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         if (!res.ok) {
-           throw new Error("Server kon de naam niet opslaan.");
+          throw new Error("Server kon naam niet opslaan.");
         }
         
-        // Maak inputveld leeg en geef een seintje
         nameInput.value = "";
         alert("Je bent toegevoegd!");
-
-        // Roep de verbeterde updateParticipants aan.
-        // Deze haalt de HELE lijst (inclusief jouw nieuwe naam) opnieuw op 
-        // van de server en toont deze correct.
         await updateParticipants(activityId);
-
       } catch (error) {
         alert("Fout bij toevoegen deelnemer: " + error.message);
         console.error("Fout in join-button handler:", error);
@@ -120,11 +102,30 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // Init: deelnemerslijst per activiteit ophalen
+  // Bij paginalaad likes laden en deelnemerslijst updaten
+  async function loadLikes() {
+    try {
+      const response = await fetch(`${API_URL}/data`);
+      if (!response.ok) throw new Error("Likes konden niet geladen worden");
+      const activities = await response.json();
+      activities.forEach(activity => {
+        const likeCountSpan = document.querySelector(`.like-count[data-activity="${activity.activity_id}"]`);
+        if (likeCountSpan) {
+          likeCountSpan.textContent = activity.likes;
+        }
+      });
+    } catch (error) {
+      console.error("Fout bij laden likes:", error);
+    }
+  }
+
+  // Init
+  loadLikes();
+  updateTopActivities();
+
+  // Voor elke deelnemerslijst bij paginalaad ophalen en tonen
   document.querySelectorAll(".participants-list").forEach(container => {
     const activityId = container.dataset.activity;
     updateParticipants(activityId);
   });
-
-  updateTopActivities();
 });
