@@ -38,23 +38,42 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // Join button handler
+   // Join button handler
   document.querySelectorAll(".join-button").forEach((button) => {
     button.addEventListener("click", async () => {
-      const activityId = button.previousElementSibling.dataset.activity;
-      const nameInput = button.previousElementSibling;
+      // Vind de 'participants-section' die de geklikte knop bevat
+      const participantSection = button.closest('.participants-section');
+      if (!participantSection) return; // Veiligheidsklep
+
+      // Vind het input-veld binnen die sectie
+      const nameInput = participantSection.querySelector('.name-input');
+      if (!nameInput) return; // Veiligheidsklep
+
+      const activityId = nameInput.dataset.activity;
       const name = nameInput.value.trim();
-      if (!name) return alert("Vul je naam in.");
+
+      if (!name) {
+        alert("Vul je naam in.");
+        return;
+      }
+
       try {
         const res = await fetch(`${API_URL}/join/${activityId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name }),
         });
-        if (!res.ok) throw new Error("Kon deelnemer niet toevoegen");
+
+        if (!res.ok) {
+          // Probeer meer info uit de backend te halen bij een fout
+          const errorData = await res.json().catch(() => null);
+          throw new Error(errorData?.message || "Kon deelnemer niet toevoegen");
+        }
+        
         nameInput.value = "";
         alert("Je bent toegevoegd!");
         await updateParticipants(activityId);
+
       } catch (error) {
         alert("Fout bij toevoegen deelnemer: " + error.message);
       }
