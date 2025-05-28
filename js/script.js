@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
 
-const API_URL = "https://therapy-backend.onrender.com";
+const API_URL = 'https://therapy-backend-l5u7.onrender.com';
 
 // Join button logic
 document.querySelectorAll(".join-button").forEach((button) => {
