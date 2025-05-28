@@ -5,126 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Groepstherapie – Pinksteren 2025</title>
   <link rel="stylesheet" href="css/styles.css" />
-  <style>
-    /* Basisstijl voor zichtbaarheid */
-    .day-section { display: none; }
-    .day-section.active { display: block; }
-    .day-button.active { font-weight: bold; }
-    .progress-item { margin: 5px 0; }
-  </style>
 </head>
 <body>
   <header>
-    <h1>Groepstherapie</h1>
-    <h2>Pinksteren 2025</h2>
-    <p>6 t/m 9 juni - De Witte Boerderij – <a href="https://luxevakantiewoningendrenthe.nl/witte-boerderij/" target="_blank">Drouwenermond</a></p>
+    <div class="container">
+      <h1 class="festival-title">Groepstherapie</h1>
+      <h2 class="festival-subtitle">Pinksteren 2025</h2>
+      <p class="festival-date">6 t/m 9 juni</p>
+      <p class="festival-location">
+        <a href="https://luxevakantiewoningendrenthe.nl/witte-boerderij/" target="_blank">De Witte Boerderij – Drouwenermond</a>
+      </p>
+    </div>
   </header>
 
   <nav class="day-navigation">
-    <button class="day-button active" data-day="vrijdag">Vrijdag</button>
-    <button class="day-button" data-day="zaterdag">Zaterdag</button>
-    <button class="day-button" data-day="zondag">Zondag</button>
-    <button class="day-button" data-day="maandag">Maandag</button>
+    <div class="container">
+      <button class="day-button active" data-day="vrijdag">Vrijdag</button>
+      <button class="day-button" data-day="zaterdag">Zaterdag</button>
+      <button class="day-button" data-day="zondag">Zondag</button>
+      <button class="day-button" data-day="maandag">Maandag</button>
+      <button class="day-button" data-day="bios">Bios</button>
+    </div>
   </nav>
 
   <main>
-    <section id="top-activities">
-      <h2>Top 5 Populairste Activiteiten</h2>
-      <div class="progress-container"></div>
-    </section>
-
-    <!-- Vrijdag sectie -->
-    <section id="vrijdag" class="day-section active">
-      <h3>Vrijdag 6 juni – Aankomst & Tapas</h3>
-
-      <div class="activity-card">
-        <div class="activity-header">
-          <h4>Tapasavond</h4>
-          <button class="like-button" data-activity="tapasavond">
-            ❤️ <span class="like-count">0</span>
-          </button>
+    <div class="container">
+      <section id="top-activities" class="top-activities">
+        <h2>Top 5 Populairste Activiteiten</h2>
+        <div class="progress-container">
+          <!-- Top activiteiten worden hier dynamisch ingevuld -->
         </div>
-        <p>We trappen het weekend af met een borrelplank.</p>
+      </section>
 
-        <div class="participants-section">
-          <input
-            type="text"
-            class="name-input"
-            data-activity="tapasavond"
-            placeholder="Jouw naam"
-          />
-          <button class="join-button">Ik doe mee!</button>
-          <div class="participants-list" data-activity="tapasavond"></div>
+      <section id="vrijdag" class="day-section active">
+        <h2 class="day-title">Vrijdag 6 juni – Aankomst & Tapas</h2>
+        
+        <div class="activity-card">
+          <div class="activity-time">18:00</div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <h3 class="activity-title">Tapasavond</h3>
+              <button class="like-button" data-activity="tapasavond">
+                <span class="heart-icon">❤️</span>
+                <span class="like-count">0</span>
+              </button>
+            </div>
+            <p class="activity-description">We trappen het weekend af met een borrelplank waar je u tegen zegt. Iedereen neemt wat mee – tapas style!</p>
+            <div class="activity-interaction">
+              <input type="text" class="name-input" placeholder="Jouw naam" data-activity="tapasavond">
+              <button class="join-button" data-activity="tapasavond">Ik doe mee!</button>
+              <div class="participants-list" data-activity="tapasavond">
+                <!-- Deelnemers worden hier dynamisch ingevuld -->
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="activity-card">
-        <div class="activity-header">
-          <h4>Hitster</h4>
-          <button class="like-button" data-activity="hitster">
-            ❤️ <span class="like-count">0</span>
-          </button>
+        <div class="activity-card">
+          <div class="activity-time">21:00</div>
+          <div class="activity-content">
+            <div class="activity-header">
+              <h3 class="activity-title">Hitster</h3>
+              <button class="like-button" data-activity="hitster">
+                <span class="heart-icon">❤️</span>
+                <span class="like-count">0</span>
+              </button>
+            </div>
+            <p class="activity-description">Muziekspel waarin je moet raden wat je allang zong.</p>
+            <div class="activity-interaction">
+              <input type="text" class="name-input" placeholder="Jouw naam" data-activity="hitster">
+              <button class="join-button" data-activity="hitster">Ik doe mee!</button>
+              <div class="participants-list" data-activity="hitster">
+                <!-- Deelnemers worden hier dynamisch ingevuld -->
+              </div>
+            </div>
+          </div>
         </div>
-        <p>Muziekspel waarin je moet raden wat je allang zong.</p>
+      </section>
 
-        <div class="participants-section">
-          <input
-            type="text"
-            class="name-input"
-            data-activity="hitster"
-            placeholder="Jouw naam"
-          />
-          <button class="join-button">Ik doe mee!</button>
-          <div class="participants-list" data-activity="hitster"></div>
-        </div>
-      </div>
-    </section>
+      <!-- Herhaal hetzelfde patroon voor zaterdag, zondag, maandag en bios met alle activiteiten terug in dezelfde structuur -->
 
-    <!-- Zaterdag sectie -->
-    <section id="zaterdag" class="day-section">
-      <h3>Zaterdag 7 juni – Actie & Spel</h3>
-      <!-- Voeg activiteiten toe met dezelfde structuur als hierboven -->
-      <!-- Bijvoorbeeld: -->
-      <div class="activity-card">
-        <div class="activity-header">
-          <h4>Pancakes & more</h4>
-          <button class="like-button" data-activity="pancakes-zaterdag">
-            ❤️ <span class="like-count">0</span>
-          </button>
-        </div>
-        <p>Ontbijtklassieker met een luchtige bodem en een gouden randje.</p>
+      <!-- Voeg voor elke dag sectie toe zoals hierboven, met id gelijk aan data-day van knoppen -->
+      <!-- Zorg dat alleen de actieve dag-sectie de class 'active' heeft, de rest niet -->
 
-        <div class="participants-section">
-          <input
-            type="text"
-            class="name-input"
-            data-activity="pancakes-zaterdag"
-            placeholder="Jouw naam"
-          />
-          <button class="join-button">Ik doe mee!</button>
-          <div class="participants-list" data-activity="pancakes-zaterdag"></div>
-        </div>
-      </div>
-      <!-- Voeg hier meer activiteiten toe voor zaterdag -->
-    </section>
-
-    <!-- Zondag sectie -->
-    <section id="zondag" class="day-section">
-      <h3>Zondag 8 juni – Games & Specials</h3>
-      <!-- Activiteiten als bij vrijdag -->
-    </section>
-
-    <!-- Maandag sectie -->
-    <section id="maandag" class="day-section">
-      <h3>Maandag 9 juni – Lazy Wrap-up</h3>
-      <!-- Activiteiten als bij vrijdag -->
-    </section>
+    </div>
   </main>
 
   <footer>
-    <p>
-      Groepstherapie – Pinksteren 2025 | <a href="https://luxevakantiewoningendrenthe.nl/witte-boerderij/" target="_blank">De Witte Boerderij – Drouwenermond</a>
-    </p>
+    <div class="container">
+      <p>
+        Groepstherapie – Pinksteren 2025 | 
+        <a href="https://luxevakantiewoningendrenthe.nl/witte-boerderij/" target="_blank">De Witte Boerderij – Drouwenermond</a>
+      </p>
+    </div>
   </footer>
 
   <script src="js/script.js"></script>
