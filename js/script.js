@@ -10,7 +10,7 @@ const participantLists = document.querySelectorAll(".participants-list");
 likeButtons.forEach((button, index) => {
     button.addEventListener("click", async () => {
         const activityId = button.dataset.activity;
-        await fetch(\`\${API_URL}/like/\${activityId}\`, { method: "POST" });
+        await fetch(`${API_URL}/like/${activityId}`, { method: "POST" });
         loadData();
     });
 });
@@ -22,7 +22,7 @@ joinButtons.forEach((button, index) => {
         const activityId = button.dataset.activity;
 
         if (name) {
-            await fetch(\`\${API_URL}/signup/\${activityId}\`, {
+            await fetch(`${API_URL}/signup/${activityId}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name })
@@ -35,17 +35,17 @@ joinButtons.forEach((button, index) => {
 
 async function loadData() {
     try {
-        const res = await fetch(\`\${API_URL}/data\`);
+        const res = await fetch(`${API_URL}/data`);
         const data = await res.json();
         console.log("🔄 Opgehaalde data:", data);
 
         data.forEach(entry => {
             const { activityId, likes, participants } = entry;
 
-            const likeDisplay = document.querySelector(\`.like-display[data-activity="\${activityId}"]\`);
+            const likeDisplay = document.querySelector(`.like-display[data-activity="${activityId}"]`);
             if (likeDisplay) likeDisplay.textContent = likes;
 
-            const list = document.querySelector(\`.participants-list[data-activity="\${activityId}"]\`);
+            const list = document.querySelector(`.participants-list[data-activity="${activityId}"]`);
             if (list) {
                 list.innerHTML = "";
 
