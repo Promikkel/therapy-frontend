@@ -7,11 +7,15 @@ document.querySelectorAll(".join-button").forEach((button) => {
   button.addEventListener("click", async () => {
     const activityId = button.dataset.activity;
     const nameInput = document.querySelector(
-      `.name-input[data-activity="\${activityId}"]`
+      `.name-input[data-activity="${activityId}"]`
     );
+    if (!nameInput) {
+      alert("Naam invoerveld niet gevonden.");
+      return;
+    }
     const name = nameInput.value.trim();
     if (!name) return alert("Vul je naam in.");
-    await fetch(`\${API_URL}/join/\${activityId}`, {
+    await fetch(`${API_URL}/join/${activityId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name }),
@@ -25,9 +29,9 @@ document.querySelectorAll(".join-button").forEach((button) => {
 document.querySelectorAll(".like-button").forEach((button) => {
   button.addEventListener("click", async () => {
     const activityId = button.dataset.activity;
-    await fetch(`\${API_URL}/like/\${activityId}`, { method: "POST" });
+    await fetch(`${API_URL}/like/${activityId}`, { method: "POST" });
     const likeDisplay = document.querySelector(
-      `.like-display[data-activity="\${activityId}"]`
+      `.like-display[data-activity="${activityId}"]`
     );
     if (likeDisplay) {
       likeDisplay.textContent = parseInt(likeDisplay.textContent || "0") + 1;
@@ -41,13 +45,15 @@ document.querySelectorAll(".day-button").forEach((button) => {
   button.addEventListener("click", () => {
     const selectedDay = button.dataset.day;
     document
-      .querySelectorAll(".activities-day")
+      .querySelectorAll(".day-section")
       .forEach((daySection) =>
         daySection.classList.toggle(
-          "hidden",
-          daySection.dataset.day !== selectedDay
+          "active",
+          daySection.id === selectedDay
         )
       );
+    document.querySelectorAll(".day-button").forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
   });
 });
 
@@ -56,6 +62,7 @@ async function updateTopActivities() {
   try {
     const response = await fetch(`${API_URL}/data`);
     const data = await response.json();
+    if (!Array.isArray(data)) throw new Error("Data is geen array");
     const sorted = data.sort((a, b) => b.likes - a.likes).slice(0, 5);
     const container = document.querySelector("#top-activities .progress-container");
     container.innerHTML = "";
