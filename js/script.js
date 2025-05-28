@@ -38,17 +38,10 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-   // Join button handler
+// Join button handler
   document.querySelectorAll(".join-button").forEach((button) => {
     button.addEventListener("click", async () => {
-      // Vind de 'participants-section' die de geklikte knop bevat
-      const participantSection = button.closest('.participants-section');
-      if (!participantSection) return; // Veiligheidsklep
-
-      // Vind het input-veld binnen die sectie
-      const nameInput = participantSection.querySelector('.name-input');
-      if (!nameInput) return; // Veiligheidsklep
-
+      const nameInput = button.previousElementSibling;
       const activityId = nameInput.dataset.activity;
       const name = nameInput.value.trim();
 
@@ -57,7 +50,23 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
       }
 
+      // VIND DE JUISTE LIJST OP DE PAGINA
+      const container = document.querySelector(`.participants-list[data-activity="${activityId}"]`);
+
+      // MAAK ALVAST HET NIEUWE NAAM-ELEMENT AAN
+      const participantDiv = document.createElement("div");
+      participantDiv.textContent = name;
+      
+      // VOEG DE NAAM DIRECT ZICHTBAAR TOE AAN DE LIJST
+      if (container) {
+        container.appendChild(participantDiv);
+      }
+      
+      // Maak het inputveld leeg
+      nameInput.value = "";
+
       try {
+        // Stuur de data nog steeds naar de server op de achtergrond
         const res = await fetch(`${API_URL}/join/${activityId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -65,17 +74,20 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         if (!res.ok) {
-          // Probeer meer info uit de backend te halen bij een fout
-          const errorData = await res.json().catch(() => null);
-          throw new Error(errorData?.message || "Kon deelnemer niet toevoegen");
+           // Als de server een fout geeft, halen we de naam die we net toevoegden weer weg.
+           console.error("Server kon de naam niet opslaan.");
+           if (container) {
+             container.removeChild(participantDiv); // Haal de naam weer weg bij een fout
+           }
+           throw new Error("Kon deelnemer niet aan server toevoegen");
         }
         
-        nameInput.value = "";
-        alert("Je bent toegevoegd!");
-        await updateParticipants(activityId);
+        // De naam is nu ook op de server opgeslagen.
+        // We hoeven de lijst niet per se opnieuw op te halen, want we hebben de naam al toegevoegd.
+        // await updateParticipants(activityId); // Deze regel kan eventueel uit.
 
       } catch (error) {
-        alert("Fout bij toevoegen deelnemer: " + error.message);
+        alert("Fout bij synchroniseren met server: " + error.message);
       }
     });
   });
