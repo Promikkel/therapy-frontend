@@ -1,70 +1,73 @@
 
-const API_URL = 'https://therapy-backend-l5u7.onrender.com';
+const API_URL = "https://therapy-backend.onrender.com";
 
-const likeButtons = document.querySelectorAll(".like-button");
-const likeDisplays = document.querySelectorAll(".like-display");
-const joinButtons = document.querySelectorAll(".join-button");
-const nameInputs = document.querySelectorAll(".name-input");
-const participantLists = document.querySelectorAll(".participants-list");
-
-likeButtons.forEach((button, index) => {
-    button.addEventListener("click", async () => {
-        const activityId = button.dataset.activity;
-        await fetch(`${API_URL}/like/${activityId}`, { method: "POST" });
-        loadData();
+// Join button logic
+document.querySelectorAll(".join-button").forEach((button) => {
+  button.addEventListener("click", async () => {
+    const activityId = button.dataset.activity;
+    const nameInput = document.querySelector(
+      `.name-input[data-activity="\${activityId}"]`
+    );
+    const name = nameInput.value.trim();
+    if (!name) return alert("Vul je naam in.");
+    await fetch(`\${API_URL}/join/\${activityId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
     });
+    nameInput.value = "";
+    alert("Je bent toegevoegd!");
+  });
 });
 
-joinButtons.forEach((button, index) => {
-    button.addEventListener("click", async () => {
-        const input = nameInputs[index];
-        const name = input.value.trim();
-        const activityId = button.dataset.activity;
-
-        if (name) {
-            await fetch(`${API_URL}/signup/${activityId}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name })
-            });
-            input.value = "";
-            loadData();
-        }
-    });
-});
-
-async function loadData() {
-    try {
-        const res = await fetch(`${API_URL}/data`);
-        const data = await res.json();
-        console.log("🔄 Opgehaalde data:", data);
-
-        data.forEach(entry => {
-            const { activityId, likes, participants } = entry;
-
-            const likeDisplay = document.querySelector(`.like-display[data-activity="${activityId}"]`);
-            if (likeDisplay) likeDisplay.textContent = likes;
-
-            const list = document.querySelector(`.participants-list[data-activity="${activityId}"]`);
-            if (list) {
-                list.innerHTML = "";
-
-                const names = Array.isArray(participants)
-                    ? participants
-                    : typeof participants === "string"
-                    ? participants.split(",").map(p => p.trim())
-                    : [];
-
-                names.forEach(name => {
-                    const li = document.createElement("li");
-                    li.textContent = name;
-                    list.appendChild(li);
-                });
-            }
-        });
-    } catch (err) {
-        console.error("Fout bij ophalen data:", err);
+// Like button logic
+document.querySelectorAll(".like-button").forEach((button) => {
+  button.addEventListener("click", async () => {
+    const activityId = button.dataset.activity;
+    await fetch(`\${API_URL}/like/\${activityId}`, { method: "POST" });
+    const likeDisplay = document.querySelector(
+      `.like-display[data-activity="\${activityId}"]`
+    );
+    if (likeDisplay) {
+      likeDisplay.textContent = parseInt(likeDisplay.textContent || "0") + 1;
     }
+    updateTopActivities(); // Refresh top 5
+  });
+});
+
+// Day switching
+document.querySelectorAll(".day-button").forEach((button) => {
+  button.addEventListener("click", () => {
+    const selectedDay = button.dataset.day;
+    document
+      .querySelectorAll(".activities-day")
+      .forEach((daySection) =>
+        daySection.classList.toggle(
+          "hidden",
+          daySection.dataset.day !== selectedDay
+        )
+      );
+  });
+});
+
+// Top 5 logica
+async function updateTopActivities() {
+  try {
+    const response = await fetch(`${API_URL}/data`);
+    const data = await response.json();
+    const sorted = data.sort((a, b) => b.likes - a.likes).slice(0, 5);
+    const container = document.querySelector("#top-activities .progress-container");
+    container.innerHTML = "";
+    sorted.forEach((item, index) => {
+      const div = document.createElement("div");
+      div.className = "progress-item";
+      div.textContent = `❤️ ${item.activity_name} — ${item.likes} likes`;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Top 5 ophalen mislukt:", err);
+  }
 }
 
-loadData();
+// Init
+updateTopActivities();
