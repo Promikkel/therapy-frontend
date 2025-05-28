@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", function() {
 
 const API_URL = "https://therapy-backend.onrender.com";
 
@@ -71,3 +72,5 @@ async function updateTopActivities() {
 
 // Init
 updateTopActivities();
+
+});
