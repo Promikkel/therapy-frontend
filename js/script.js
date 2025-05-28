@@ -102,6 +102,22 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
+  // Dagknoppen wisselen
+document.querySelectorAll(".day-button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const selectedDay = btn.dataset.day;
+
+    // Active knop wisselen
+    document.querySelectorAll(".day-button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // Alle dagen verbergen behalve de gekozen
+    document.querySelectorAll(".day-section").forEach(sec => {
+      sec.classList.toggle("active", sec.id === selectedDay);
+    });
+  });
+});
+
   // Bij paginalaad likes laden en deelnemerslijst updaten
   async function loadLikes() {
     try {
